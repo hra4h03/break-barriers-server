@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Validate Mail</title>
+</head>
+<body>
+  <div style="padding: 20px 10px;">
+
+    <h2>Welcome <%= username %></h2>
+    
+    <p> 
+      Thanks for signing up with Break Barriers! <br />
+      You must follow this link to change your password:
+    </p>
+    
+    <a href="<%= url %>" target="_blank" rel="noopener" style="padding: 8px 16px; background-color: darkslategray; color: floralwhite; border-radius: 5px;">Verify</a>
+    <small class="margin-left: 5px">
+      This link is active for <%= ttl  %> minute.
+    </small>
+  </div>
+</body>
+</html>
