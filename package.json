@@ -6,8 +6,11 @@
   "private": true,
   "license": "MIT",
   "scripts": {
-    "prebuild": "rimraf dist",
-    "build": "nest build",
+    "prebuild": "rimraf dist && rimraf public",
+    "build:server": "nest build",
+    "build:client": "cd client/ && npm run build",
+    "build": "yarn build:server && yarn build:client",
+    "heroku-prebuild": "cd client/ && npm i",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
