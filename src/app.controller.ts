@@ -21,38 +21,4 @@ export class AppController {
     private readonly usersService: UsersService,
     private readonly roomsService: RoomsService,
   ) {}
-
-  @Get('/')
-  @Render('pages/index')
-  rootPage(@Req() req: Request) {
-    return {
-      user: req.user,
-    };
-  }
-
-  @Get('/login/')
-  @Render('pages/login')
-  loginPage() {
-    return;
-  }
-
-  @Get('/signin/')
-  @Render('pages/signin')
-  signInPage(@Session() session: Record<any, string>) {
-    return {
-      error: session?.error,
-    };
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @UseFilters(UnauthorizeExceptionFilter)
-  @Get('/profile/')
-  @Render('pages/profile')
-  async profile(@Req() req) {
-    const userById = await this.usersService
-      .findById(req.user._id)
-      .populate('rooms');
-    const { password: _, ...user } = userById.toObject();
-    return { user };
-  }
 }

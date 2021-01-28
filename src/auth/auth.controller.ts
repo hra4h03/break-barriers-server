@@ -61,6 +61,13 @@ export class AuthController {
     }
   }
 
+  @Get('/user')
+  @UseGuards(JwtAuthGuard)
+  @UseFilters(UnauthorizeExceptionFilter)
+  async getUser(@Req() req: Request) {
+    return { user: req.user };
+  }
+
   @Get('/recover-password/:id/:bytes/')
   async recoverPassword(
     @Res() res: Response,

@@ -17,6 +17,7 @@ async function bootstrap() {
   app.useStaticAssets(join(__dirname, '..', 'public'));
   app.setViewEngine('ejs');
 
+  app.setGlobalPrefix('api');
   app.useGlobalPipes(new ValidationPipe());
 
   app.use(initialize());
