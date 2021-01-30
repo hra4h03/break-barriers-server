@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { AppService } from './app.service';
-import { UnauthorizeExceptionFilter } from './exeption-filters/unauthorize-exeption.filter';
+import { UnauthorizedExceptionFilter } from './exeption-filters/unauthorize-exeption.filter';
 import { UsersService } from './users/users.service';
 import { RoomsService } from './rooms/rooms.service';
 

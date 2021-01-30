@@ -1,7 +1,7 @@
 import { UpdateUserPasswordDto } from './../users/dto/update-user-password.dto';
 import { JwtAuthGuard } from './guards/jwt.guard';
 import { LocalAuthGuard } from './guards/local.guard';
-import { UnauthorizeExceptionFilter } from './../exeption-filters/unauthorize-exeption.filter';
+import { UnauthorizedExceptionFilter } from './../exeption-filters/unauthorize-exeption.filter';
 import {
   Body,
   Controller,
@@ -30,7 +30,7 @@ export class AuthController {
   ) {}
 
   @UseGuards(LocalAuthGuard)
-  @UseFilters(UnauthorizeExceptionFilter)
+  @UseFilters(UnauthorizedExceptionFilter)
   @Post('/login/')
   async getLogin(@Req() req: Request, @Res() res: Response) {
     const { accessToken } = await this.authService.login(
@@ -63,7 +63,6 @@ export class AuthController {
 
   @Get('/user')
   @UseGuards(JwtAuthGuard)
-  @UseFilters(UnauthorizeExceptionFilter)
   async getUser(@Req() req: Request) {
     return { user: req.user };
   }
@@ -76,7 +75,7 @@ export class AuthController {
   ) {
     const can = await this.authService.compareRecoveryAddress({ id, bytes });
     if (!can) return res.redirect('/login/');
-    return res.render('pages/recoverPassword');
+    return res.redirect(`/login/recover-password/${id}/${bytes}`);
   }
 
   @Post('/recover-password/:id/:bytes/')
@@ -95,10 +94,10 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @UseFilters(UnauthorizeExceptionFilter)
+  @UseFilters(UnauthorizedExceptionFilter)
   @Get('/logout/')
   async getLogout(@Res() res: Response) {
-    res.clearCookie('jwt_token');
+    this.authService.logout(res);
     return res.redirect('/');
   }
 }

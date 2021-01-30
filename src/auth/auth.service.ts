@@ -3,13 +3,14 @@ import { compare } from 'bcrypt';
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import * as cryptoRandomString from 'crypto-random-string';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { TTL, STRING_LENGTH } from './../common/constants';
 import { JwtPayload } from './interfaces/payload.jwt';
 import { UserDocument } from './../users/entities/user.entity';
 import { UpdateUserWithEmail } from '../users/dto/update-with-email.dto';
 import { UsersService } from '../users/users.service';
 import { MailService } from '../mail/mail.service';
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -73,5 +74,9 @@ export class AuthService {
 
   async compareRecoveryAddress({ bytes, id }: { id: string; bytes: string }) {
     return bytes === (await this.cacheManager.get<string>(id));
+  }
+
+  logout(res: Response) {
+    res.clearCookie('jwt_token');
   }
 }
