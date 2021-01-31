@@ -19,6 +19,9 @@ export class Room {
   @Prop({ default: '' })
   logo: string;
 
+  @Prop({ default: false, type: Boolean })
+  private: string;
+
   @Prop({ default: Date.now })
   createdAt: Date;
 

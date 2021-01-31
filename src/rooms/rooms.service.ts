@@ -1,14 +1,21 @@
+import { UsersService } from 'src/users/users.service';
 import { Room, RoomDocument } from './entities/room.entity';
-import { Injectable, NotAcceptableException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotAcceptableException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import { Model } from 'mongoose';
+import { AddMemberDto } from './dto/add-member.dto';
 
 @Injectable()
 export class RoomsService {
   constructor(
     @InjectModel(Room.name) private readonly roomSchema: Model<RoomDocument>,
+    private readonly usersService: UsersService,
   ) {}
 
   async isExist(name: string) {
@@ -50,7 +57,29 @@ export class RoomsService {
     return updatedRoom;
   }
 
+  private async addMember({ roomId, userId }: AddMemberDto) {
+    const user = await this.usersService.findById(userId);
+    if (!user) throw new BadRequestException();
+    const updatedRoom = await this.roomSchema.findByIdAndUpdate(
+      roomId,
+      {
+        $addToSet: {
+          members: user,
+        },
+      },
+      { new: true },
+    );
+
+    return { members: updatedRoom.members.length };
+  }
+
   remove(id: number) {
     return `This action removes a #${id} room`;
+  }
+
+  async requestJoinRoom({ roomId, userId }: AddMemberDto) {
+    const room = await this.findById(roomId);
+    if (!room) throw new BadRequestException();
+    if (!room.private) this.addMember({ roomId, userId });
   }
 }
