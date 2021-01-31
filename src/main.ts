@@ -1,5 +1,6 @@
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import * as AdminBroMongoose from '@admin-bro/mongoose';
 import { initialize, session } from 'passport';
@@ -8,6 +9,7 @@ import * as cookieParser from 'cookie-parser';
 
 import { join } from 'path';
 import { AppModule } from './app.module';
+import { LoggingInterceptor } from './common/interceptors/logger.interceptor';
 
 AdminBro.registerAdapter(AdminBroMongoose);
 
@@ -24,6 +26,16 @@ async function bootstrap() {
   app.use(session());
 
   app.use(cookieParser(process.env.SESSION_SECRET));
+
+  app.useGlobalInterceptors(new LoggingInterceptor());
+
+  const config = new DocumentBuilder()
+    .setTitle('Break Barriers')
+    .setDescription('The Break Barriers API description')
+    .setVersion('1.0')
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('swagger', app, document);
 
   const PORT = process.env.PORT || 5000;
   await app.listen(PORT, () =>

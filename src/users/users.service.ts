@@ -1,14 +1,9 @@
-import { RoomsService } from './../rooms/rooms.service';
 import { MailService } from 'src/mail/mail.service';
 import { UserDocument, User } from './entities/user.entity';
-import {
-  BadRequestException,
-  Injectable,
-  NotAcceptableException,
-} from '@nestjs/common';
+import { Injectable, NotAcceptableException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import * as bcrypt from 'bcrypt';
+import { hash } from 'bcrypt';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
@@ -17,7 +12,6 @@ export class UsersService {
   constructor(
     @InjectModel(User.name) private readonly userSchema: Model<UserDocument>,
     private readonly mailService: MailService,
-    private readonly roomService: RoomsService,
   ) {}
   async isExist(query = {}) {
     return !!(await this.userSchema.findOne(query));
@@ -35,7 +29,7 @@ export class UsersService {
       });
       if (existEmail) throw new NotAcceptableException();
     }
-    const hashedPassword = await bcrypt.hash(
+    const hashedPassword = await hash(
       createUserDto.password,
       +process.env.SALT_RANGE,
     );
@@ -72,20 +66,5 @@ export class UsersService {
 
   remove(id: number) {
     return `This action removes a #${id} user`;
-  }
-
-  async joinRoom(userId: string, roomId: string) {
-    const room = await this.roomService.findById(roomId);
-    if (!room) throw new BadRequestException();
-    const user = await this.userSchema.findByIdAndUpdate(
-      userId,
-      {
-        $addToSet: {
-          rooms: room,
-        },
-      },
-      { new: true },
-    );
-    return { rooms: user.rooms };
   }
 }

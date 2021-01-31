@@ -19,9 +19,11 @@ import { Response, Request } from 'express';
 import { MailService } from 'src/mail/mail.service';
 import { UpdateUserWithEmail } from 'src/users/dto/update-with-email.dto';
 import { UsersService } from 'src/users/users.service';
+import { ApiTags } from '@nestjs/swagger';
+import { isProd } from 'src/common/constants';
 
-const isProd = process.env.NODE_ENV === 'production';
-@Controller('/auth')
+@ApiTags('auth')
+@Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,

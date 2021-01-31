@@ -1,9 +1,4 @@
-import {
-  CacheModule,
-  MiddlewareConsumer,
-  Module,
-  NestModule,
-} from '@nestjs/common';
+import { CacheModule, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 
@@ -13,7 +8,6 @@ import { SocketsGateway } from './sockets.gateway';
 import { RoomsModule } from './rooms/rooms.module';
 import { UsersModule } from './users/users.module';
 import { MongooseSchemasModule } from './mongoose-schema/mongoose-schema.module';
-import { LoggerMiddleware } from './common/middlewares/logger.middleware';
 import { AuthModule } from './auth/auth.module';
 import { AdminPanelModule } from './admin/admin.module';
 import { MailModule } from './mail/mail.module';
@@ -38,8 +32,4 @@ import { MailModule } from './mail/mail.module';
   controllers: [AppController],
   providers: [AppService, SocketsGateway],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoggerMiddleware).forRoutes('*');
-  }
-}
+export class AppModule {}
