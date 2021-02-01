@@ -17,7 +17,7 @@ export class LoggingInterceptor implements NestInterceptor {
     const method = req.method.toUpperCase();
     const url = req.originalUrl;
     const now = Date.now();
-    this.logger.log(`{${method}, ${url}} opened `);
+    this.logger.log(`{${method}, ${url}} opened ...`);
     return next
       .handle()
       .pipe(

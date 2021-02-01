@@ -64,6 +64,10 @@ export class UsersService {
     }
   }
 
+  sendAdminRequest({ admin, member }) {
+    this.mailService;
+  }
+
   remove(id: number) {
     return `This action removes a #${id} user`;
   }

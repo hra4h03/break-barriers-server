@@ -9,7 +9,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import { Model } from 'mongoose';
-import { AddMemberDto } from './dto/add-member.dto';
+import { AddMemberByIdDto, AddMemberDto } from './dto/add-member.dto';
 
 @Injectable()
 export class RoomsService {
@@ -57,11 +57,8 @@ export class RoomsService {
     return updatedRoom;
   }
 
-  private async addMember({ roomId, userId }: AddMemberDto) {
-    const user = await this.usersService.findById(userId);
-    if (!user) throw new BadRequestException();
-    const updatedRoom = await this.roomSchema.findByIdAndUpdate(
-      roomId,
+  private async addMember({ room, user }: AddMemberDto) {
+    room.update(
       {
         $addToSet: {
           members: user,
@@ -69,17 +66,28 @@ export class RoomsService {
       },
       { new: true },
     );
-
-    return { members: updatedRoom.members.length };
+    await room.save();
+    return { members: room.members.length };
   }
 
   remove(id: number) {
     return `This action removes a #${id} room`;
   }
 
-  async requestJoinRoom({ roomId, userId }: AddMemberDto) {
+  async requestJoinRoom({ roomId, userId }: AddMemberByIdDto) {
     const room = await this.findById(roomId);
-    if (!room) throw new BadRequestException();
-    if (!room.private) this.addMember({ roomId, userId });
+    const user = await this.usersService.findById(userId);
+    if (!user || !room) throw new BadRequestException();
+    if (!room.private || room.whitelisted.includes(user)) {
+      return await this.addMember({ room, user });
+    }
+
+    room.update({
+      $addToSet: {
+        whitelisted: user,
+      },
+    });
+    await room.save();
+    return { whitelisted: room.whitelisted.length };
   }
 }

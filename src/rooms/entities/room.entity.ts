@@ -27,6 +27,9 @@ export class Room {
 
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: User.name }] })
   members: User[];
+
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: User.name }] })
+  whitelisted: User[];
 }
 
 export const RoomSchema = SchemaFactory.createForClass(Room);
