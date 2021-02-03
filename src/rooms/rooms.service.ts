@@ -3,16 +3,21 @@ import { Room, RoomDocument } from './entities/room.entity';
 import {
   BadRequestException,
   Injectable,
+  InternalServerErrorException,
+  Logger,
   NotAcceptableException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import { Model } from 'mongoose';
-import { AddMemberByIdDto, AddMemberDto } from './dto/add-member.dto';
+import { AddMemberByIdDto } from './dto/add-member.dto';
+import { UserDocument } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class RoomsService {
+  private readonly name = 'Room Service';
+
   constructor(
     @InjectModel(Room.name) private readonly roomSchema: Model<RoomDocument>,
     private readonly usersService: UsersService,
@@ -57,17 +62,23 @@ export class RoomsService {
     return updatedRoom;
   }
 
-  private async addMember({ room, user }: AddMemberDto) {
-    room.update(
-      {
-        $addToSet: {
-          members: user,
+  private async addMember({ roomId, userId }: AddMemberByIdDto) {
+    try {
+      const user = await this.usersService.findById(userId);
+      const room = await this.roomSchema.findByIdAndUpdate(
+        roomId,
+        {
+          $addToSet: {
+            members: user,
+          },
         },
-      },
-      { new: true },
-    );
-    await room.save();
-    return { members: room.members.length };
+        { new: true },
+      );
+      return { members: room.members.length };
+    } catch (error) {
+      Logger.error(error.message, this.name);
+      throw new InternalServerErrorException(error.message);
+    }
   }
 
   remove(id: number) {
@@ -75,19 +86,32 @@ export class RoomsService {
   }
 
   async requestJoinRoom({ roomId, userId }: AddMemberByIdDto) {
-    const room = await this.findById(roomId);
-    const user = await this.usersService.findById(userId);
-    if (!user || !room) throw new BadRequestException();
-    if (!room.private || room.whitelisted.includes(user)) {
-      return await this.addMember({ room, user });
+    let room: RoomDocument;
+    let user: UserDocument;
+    try {
+      room = await this.findById(roomId);
+      user = await this.usersService.findById(userId);
+    } catch (error) {
+      throw new BadRequestException('Provided id did not exists.');
     }
 
-    room.update({
-      $addToSet: {
-        whitelisted: user,
-      },
-    });
-    await room.save();
-    return { whitelisted: room.whitelisted.length };
+    if (!room.private || room.whitelisted.includes(user)) {
+      return await this.addMember({ roomId, userId });
+    }
+
+    try {
+      const updatedRoom = await this.roomSchema.findByIdAndUpdate(
+        roomId,
+        {
+          $addToSet: {
+            whitelisted: user,
+          },
+        },
+        { new: true },
+      );
+      return { whitelisted: updatedRoom.whitelisted.length };
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
 }

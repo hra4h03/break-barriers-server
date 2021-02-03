@@ -22,12 +22,14 @@ export class UsersService {
       const existUsername = await this.isExist({
         username: createUserDto.username,
       });
-      if (existUsername) throw new NotAcceptableException();
+      if (existUsername)
+        throw new NotAcceptableException('Username is already taken');
 
       const existEmail = await this.isExist({
         email: createUserDto.email,
       });
-      if (existEmail) throw new NotAcceptableException();
+      if (existEmail)
+        throw new NotAcceptableException('Email is already taken');
     }
     const hashedPassword = await hash(
       createUserDto.password,
