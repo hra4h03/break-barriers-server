@@ -95,7 +95,7 @@ export class RoomsService {
       throw new BadRequestException('Provided id did not exists.');
     }
 
-    if (!room.private || room.whitelisted.includes(user)) {
+    if (!room.private || room.waitlist.includes(user)) {
       return await this.addMember({ roomId, userId });
     }
 
@@ -104,12 +104,12 @@ export class RoomsService {
         roomId,
         {
           $addToSet: {
-            whitelisted: user,
+            waitlist: user,
           },
         },
         { new: true },
       );
-      return { whitelisted: updatedRoom.whitelisted.length };
+      return { waitlist: updatedRoom.waitlist.length };
     } catch (error) {
       throw new Error(error.message);
     }

@@ -1,16 +1,5 @@
-import { JwtAuthGuard } from './auth/guards/jwt.guard';
-import {
-  Controller,
-  Get,
-  Req,
-  Render,
-  UseGuards,
-  UseFilters,
-  Session,
-} from '@nestjs/common';
-import { Request, Response } from 'express';
+import { Controller } from '@nestjs/common';
 import { AppService } from './app.service';
-import { UnauthorizedExceptionFilter } from './exeption-filters/unauthorize-exeption.filter';
 import { UsersService } from './users/users.service';
 import { RoomsService } from './rooms/rooms.service';
 

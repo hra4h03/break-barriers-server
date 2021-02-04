@@ -29,7 +29,7 @@ export class Room {
   members: User[];
 
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: User.name }] })
-  whitelisted: User[];
+  waitlist: User[];
 }
 
 export const RoomSchema = SchemaFactory.createForClass(Room);
