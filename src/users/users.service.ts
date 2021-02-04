@@ -75,7 +75,7 @@ export class UsersService {
     room: RoomDocument;
   }) {
     const admin = await this.userSchema.findById(adminId);
-    this.mailService.sendNotifyAdminMail({
+    await this.mailService.sendNotifyAdminMail({
       room,
       email: admin.email,
     });

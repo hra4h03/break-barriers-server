@@ -100,15 +100,17 @@ export class RoomsService {
     }
 
     try {
-      const updatedRoom = await this.roomSchema.findByIdAndUpdate(
-        roomId,
-        {
-          $addToSet: {
-            waitlist: user,
+      const updatedRoom = await this.roomSchema
+        .findByIdAndUpdate(
+          roomId,
+          {
+            $addToSet: {
+              waitlist: user,
+            },
           },
-        },
-        { new: true },
-      );
+          { new: true },
+        )
+        .populate('waitlist', 'username');
       await this.usersService.notifyAdmin({
         room: updatedRoom,
         adminId: updatedRoom.roomAdmin,

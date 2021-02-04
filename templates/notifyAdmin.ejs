@@ -8,11 +8,11 @@
 <body>
   <div style="padding: 20px 10px;">
 
-    <h2>New People request to join <strong><%= room.title %></strong></h2>
+    <h2>New People request to join <i><%= room.title %></i></h2>
     <ul>
 
-      <% room.waitlist.forEach(({ name }) => { %>
-        <li><%= name %> </li>
+      <% room.waitlist.forEach(({ username }) => { %>
+        <li><%= username %> </li>
       <% }) %> 
     </ul>
     <button style="padding: 8px 14px; background-color: darkblue; color: white; outline: none;">

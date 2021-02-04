@@ -24,7 +24,7 @@ import { isProd } from 'src/common/constants';
           from: `"Break Barriers" <${configService.get<string>('EMAIL')}>`,
         },
         template: {
-          dir: 'templates',
+          dir: process.cwd() + '/templates',
           adapter: new EjsAdapter(),
           options: {
             strict: false,
