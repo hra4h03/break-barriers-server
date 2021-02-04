@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Request to Admin</title>
+</head>
+<body>
+  <div style="padding: 20px 10px;">
+
+    <h2>New People request to join <strong><%= room.title %></strong></h2>
+    <ul>
+
+      <% room.waitlist.forEach(({ name }) => { %>
+        <li><%= name %> </li>
+      <% }) %> 
+    </ul>
+    <button style="padding: 8px 14px; background-color: darkblue; color: white; outline: none;">
+      Check them
+    </button>
+  </div>
+</body>
+</html>

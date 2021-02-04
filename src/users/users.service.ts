@@ -1,3 +1,4 @@
+import { RoomDocument } from './../rooms/entities/room.entity';
 import { MailService } from 'src/mail/mail.service';
 import { UserDocument, User } from './entities/user.entity';
 import { Injectable, NotAcceptableException } from '@nestjs/common';
@@ -66,8 +67,18 @@ export class UsersService {
     }
   }
 
-  sendAdminRequest({ admin, member }) {
-    this.mailService;
+  async notifyAdmin({
+    adminId,
+    room,
+  }: {
+    adminId: string;
+    room: RoomDocument;
+  }) {
+    const admin = await this.userSchema.findById(adminId);
+    this.mailService.sendNotifyAdminMail({
+      room,
+      email: admin.email,
+    });
   }
 
   remove(id: number) {

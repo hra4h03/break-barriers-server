@@ -1,3 +1,4 @@
+import { RoomDocument } from './../rooms/entities/room.entity';
 import { ISendMailOptions, MailerService } from '@nestjs-modules/mailer';
 import { Injectable, Logger } from '@nestjs/common';
 
@@ -7,6 +8,12 @@ interface IPasswordRecoverMail {
   username: string;
   ttl: number;
 }
+
+interface INotifyAdmin {
+  email: string;
+  room: RoomDocument;
+}
+
 @Injectable()
 export class MailService {
   private static readonly logger = new Logger('MailService');
@@ -27,6 +34,23 @@ export class MailService {
           username,
           url,
           ttl,
+        },
+      });
+      return true;
+    } catch (error) {
+      MailService.logger.error(error.message);
+      return false;
+    }
+  }
+
+  public async sendNotifyAdminMail({ email, room }: INotifyAdmin) {
+    try {
+      await this.mailerService.sendMail({
+        to: email,
+        subject: `Join request (${room.waitlist.length}new) | ${room.title}`,
+        template: 'notifyAdmin',
+        context: {
+          room,
         },
       });
       return true;

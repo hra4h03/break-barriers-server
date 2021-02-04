@@ -109,6 +109,10 @@ export class RoomsService {
         },
         { new: true },
       );
+      await this.usersService.notifyAdmin({
+        room: updatedRoom,
+        adminId: updatedRoom.roomAdmin,
+      });
       return { waitlist: updatedRoom.waitlist.length };
     } catch (error) {
       throw new Error(error.message);
