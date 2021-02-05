@@ -1,6 +1,6 @@
 import { UsersModule } from './../users/users.module';
 import { Room, RoomSchema } from './entities/room.entity';
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { RoomsService } from './rooms.service';
 import { RoomsController } from './rooms.controller';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -8,7 +8,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Room.name, schema: RoomSchema }]),
-    UsersModule,
+    forwardRef(() => UsersModule),
   ],
   controllers: [RoomsController],
   providers: [RoomsService],

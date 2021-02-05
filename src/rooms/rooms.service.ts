@@ -2,6 +2,8 @@ import { UsersService } from 'src/users/users.service';
 import { Room, RoomDocument } from './entities/room.entity';
 import {
   BadRequestException,
+  forwardRef,
+  Inject,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -20,6 +22,7 @@ export class RoomsService {
 
   constructor(
     @InjectModel(Room.name) private readonly roomSchema: Model<RoomDocument>,
+    @Inject(forwardRef(() => UsersService))
     private readonly usersService: UsersService,
   ) {}
 
@@ -27,13 +30,24 @@ export class RoomsService {
     return !!(await this.roomSchema.findOne({ name }));
   }
 
-  async create(createRoomDto: CreateRoomDto) {
-    const exist = await this.isExist(createRoomDto.title);
-    if (exist) throw new NotAcceptableException();
+  async create(createRoomDto: CreateRoomDto, userId: string) {
+    try {
+      const exist = await this.roomSchema.findOne({
+        name: createRoomDto.title,
+      });
+      if (exist) {
+        throw new NotAcceptableException();
+      }
+    } catch (error) {
+      throw new NotAcceptableException(error.message);
+    }
 
     const newRoom = new this.roomSchema({
-      name: createRoomDto.title,
+      title: createRoomDto.title,
       logo: createRoomDto.logo,
+      roomAdmin: userId,
+      members: [userId],
+      private: createRoomDto.private || false,
     });
     return await newRoom.save();
   }
@@ -95,7 +109,13 @@ export class RoomsService {
       throw new BadRequestException('Provided id did not exists.');
     }
 
-    if (!room.private || room.waitlist.includes(user)) {
+    // if user is already room member
+    if (room.members.includes(user)) {
+      return { message: 'Already In the room.' };
+    }
+
+    // add if room is not private
+    if (!room.private) {
       return await this.addMember({ roomId, userId });
     }
 
@@ -118,6 +138,38 @@ export class RoomsService {
       return { waitlist: updatedRoom.waitlist.length };
     } catch (error) {
       throw new Error(error.message);
+    }
+  }
+
+  async whitelistMembers({
+    roomId,
+    whitelisted,
+  }: {
+    roomId: string;
+    whitelisted: UserDocument[];
+  }) {
+    try {
+      const updatedRoom = await this.roomSchema.findByIdAndUpdate(
+        roomId,
+        {
+          $pullAll: {
+            waitlist: whitelisted,
+          },
+          $addToSet: {
+            members: {
+              $each: whitelisted,
+            },
+          },
+        },
+        { new: true },
+      );
+      return {
+        waitlist: updatedRoom.waitlist.length,
+        members: updatedRoom.members.length,
+        message: 'Success.',
+      };
+    } catch (error) {
+      throw new BadRequestException(error.message);
     }
   }
 }

@@ -32,4 +32,7 @@ export class Room {
   waitlist: User[];
 }
 
-export const RoomSchema = SchemaFactory.createForClass(Room);
+export const RoomSchema: mongoose.Schema<
+  RoomDocument,
+  mongoose.Model<RoomDocument>
+> = SchemaFactory.createForClass<RoomDocument>(Room);

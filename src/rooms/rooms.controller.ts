@@ -28,9 +28,10 @@ export class RoomsController {
 
   @UseGuards(JwtAuthGuard)
   @Post('/create/')
-  async create(@Body() createRoomDto: CreateRoomDto) {
+  async create(@Body() createRoomDto: CreateRoomDto, @Req() req: Request) {
     try {
-      return await this.roomsService.create(createRoomDto);
+      const user = req.user as JwtPayload;
+      return await this.roomsService.create(createRoomDto, user._id);
     } catch (error) {
       this.logger.error(error.message);
       return error;

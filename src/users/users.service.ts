@@ -1,7 +1,14 @@
+import { RoomsService } from './../rooms/rooms.service';
 import { RoomDocument } from './../rooms/entities/room.entity';
 import { MailService } from 'src/mail/mail.service';
 import { UserDocument, User } from './entities/user.entity';
-import { Injectable, NotAcceptableException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotAcceptableException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { hash } from 'bcrypt';
@@ -13,6 +20,8 @@ export class UsersService {
   constructor(
     @InjectModel(User.name) private readonly userSchema: Model<UserDocument>,
     private readonly mailService: MailService,
+    @Inject(forwardRef(() => RoomsService))
+    private readonly roomsService: RoomsService,
   ) {}
   async isExist(query = {}) {
     return !!(await this.userSchema.findOne(query));
@@ -45,7 +54,7 @@ export class UsersService {
   }
 
   findAll() {
-    return `This action returns all users`;
+    return this.userSchema.find({});
   }
 
   findOne(query: any, options?: any) {
@@ -75,10 +84,36 @@ export class UsersService {
     room: RoomDocument;
   }) {
     const admin = await this.userSchema.findById(adminId);
-    await this.mailService.sendNotifyAdminMail({
-      room,
-      email: admin.email,
-    });
+    try {
+      return await this.mailService.sendNotifyAdminMail({
+        room,
+        email: admin.email,
+      });
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async acceptMemberToPrivateRoom({
+    roomId,
+    userId,
+    whitelisted,
+  }: {
+    roomId: string;
+    userId: string;
+    whitelisted: UserDocument[];
+  }) {
+    try {
+      const room = await this.roomsService.findById(roomId);
+
+      if (room.roomAdmin.toString() !== userId)
+        throw new UnauthorizedException(
+          'You do not have premissions in this room',
+        );
+      return await this.roomsService.whitelistMembers({ roomId, whitelisted });
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
 
   remove(id: number) {
