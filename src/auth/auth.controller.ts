@@ -6,6 +6,7 @@ import {
   Body,
   Controller,
   Get,
+  HttpStatus,
   Param,
   Post,
   Req,
@@ -92,7 +93,7 @@ export class AuthController {
     const user = await this.usersService.update(id, {
       password: updateUserPassword.password,
     });
-    return { user };
+    return res.status(HttpStatus.CREATED).json({ user });
   }
 
   @UseGuards(JwtAuthGuard)

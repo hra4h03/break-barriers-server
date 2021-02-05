@@ -53,7 +53,21 @@ export class RoomsService {
   }
 
   findAll() {
-    return this.roomSchema.find().limit(6);
+    return (
+      this.roomSchema
+        .aggregate([
+          {
+            $project: {
+              title: 1,
+              logo: 1,
+              members_length: { $size: '$members' },
+            },
+          },
+          { $sort: { members_length: -1 } },
+        ])
+        // TODO: user specific recomendation
+        .limit(5)
+    );
   }
 
   findById(id: string) {

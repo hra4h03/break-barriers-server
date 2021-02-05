@@ -1,5 +1,5 @@
-import { WsRolesGuard } from './auth/guards/ws.roles.guard';
-import { Role } from './auth/roles/roles.enum';
+import { WsRolesGuard } from '../auth/guards/ws.roles.guard';
+import { Role } from '../auth/roles/roles.enum';
 import { Logger, UseGuards } from '@nestjs/common';
 import {
   OnGatewayConnection,
@@ -10,12 +10,12 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { Roles } from './auth/roles/roles.decorator';
+import { Roles } from '../auth/roles/roles.decorator';
 
-@WebSocketGateway()
-export class SocketsGateway
+@WebSocketGateway({ namespace: 'rooms' })
+export class RoomsGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
-  private logger = new Logger('AppGateway');
+  private logger = new Logger('RoomsGateway');
 
   @WebSocketServer() wss: Server;
 

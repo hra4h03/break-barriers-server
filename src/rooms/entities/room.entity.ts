@@ -32,7 +32,7 @@ export class Room {
   waitlist: User[];
 }
 
-export const RoomSchema: mongoose.Schema<
-  RoomDocument,
-  mongoose.Model<RoomDocument>
-> = SchemaFactory.createForClass<RoomDocument>(Room);
+export const RoomSchema = SchemaFactory.createForClass<RoomDocument>(Room);
+RoomSchema.virtual('members_length').get(function () {
+  return this.members.length;
+});

@@ -55,7 +55,7 @@ export class AuthService {
       });
 
       const hostname = `${req.protocol}://${req.headers.host}`;
-      const url = `${hostname}/auth/recover-password/${user.id}/${bytes}/`;
+      const url = `${hostname}/api/auth/recover-password/${user.id}/${bytes}/`;
 
       const ttl = TTL.FIFTEEN;
       await this.cacheManager.set(user.id, bytes, { ttl });

@@ -27,28 +27,46 @@ export class UsersService {
     return !!(await this.userSchema.findOne(query));
   }
 
-  async create(createUserDto: CreateUserDto, validEmailAndUsername = false) {
-    if (!validEmailAndUsername) {
+  private async checkUserInfo(
+    user: UpdateUserDto | CreateUserDto,
+  ): Promise<UpdateUserDto | CreateUserDto> {
+    if (user.username) {
       const existUsername = await this.isExist({
-        username: createUserDto.username,
+        username: user.username,
       });
       if (existUsername)
         throw new NotAcceptableException('Username is already taken');
+    }
 
+    if (user.email) {
       const existEmail = await this.isExist({
-        email: createUserDto.email,
+        email: user.email,
       });
       if (existEmail)
         throw new NotAcceptableException('Email is already taken');
     }
-    const hashedPassword = await hash(
-      createUserDto.password,
-      +process.env.SALT_RANGE,
-    );
-    const newUser = new this.userSchema({
-      username: createUserDto.username,
-      email: createUserDto.email,
+
+    const hashedPassword =
+      user.password && (await hash(user.password, +process.env.SALT_RANGE));
+
+    return {
+      ...user,
       password: hashedPassword,
+    };
+  }
+
+  async create(createUserDto: CreateUserDto) {
+    let user: CreateUserDto;
+    try {
+      user = (await this.checkUserInfo(createUserDto)) as CreateUserDto;
+    } catch (error) {
+      throw error;
+    }
+
+    const newUser = new this.userSchema({
+      username: user.username,
+      email: user.email,
+      password: user.password,
     });
     return await newUser.save();
   }
@@ -66,11 +84,18 @@ export class UsersService {
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
+    let user: UpdateUserDto;
     try {
-      const user = await this.userSchema.findByIdAndUpdate(id, updateUserDto, {
+      user = (await this.checkUserInfo(updateUserDto)) as UpdateUserDto;
+    } catch (error) {
+      throw error;
+    }
+
+    try {
+      const updatedUser = await this.userSchema.findByIdAndUpdate(id, user, {
         new: true,
       });
-      return user;
+      return updatedUser;
     } catch (error) {
       throw new Error(error.message);
     }

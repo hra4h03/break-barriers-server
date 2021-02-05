@@ -4,7 +4,6 @@ import { ConfigModule } from '@nestjs/config';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { SocketsGateway } from './sockets.gateway';
 import { RoomsModule } from './rooms/rooms.module';
 import { UsersModule } from './users/users.module';
 import { MongooseSchemasModule } from './mongoose-schema/mongoose-schema.module';
@@ -30,6 +29,6 @@ import { MailModule } from './mail/mail.module';
     MailModule,
   ],
   controllers: [AppController],
-  providers: [AppService, SocketsGateway],
+  providers: [AppService],
 })
 export class AppModule {}
