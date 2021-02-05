@@ -77,8 +77,8 @@ export class AuthController {
     @Param('bytes') bytes: string,
   ) {
     const can = await this.authService.compareRecoveryAddress({ id, bytes });
-    if (!can) return res.redirect('/login/');
-    return res.redirect(`/login/recover-password/${id}/${bytes}`);
+    if (!can) return res.redirect('/auth/login/');
+    return res.redirect(`/auth/login/recover-password/${id}/${bytes}`);
   }
 
   @Post('/recover-password/:id/:bytes/')
@@ -89,7 +89,7 @@ export class AuthController {
     @Param('bytes') bytes: string,
   ) {
     const can = await this.authService.compareRecoveryAddress({ id, bytes });
-    if (!can) return res.redirect('/login/');
+    if (!can) return res.redirect('/auth/login/');
     const user = await this.usersService.update(id, {
       password: updateUserPassword.password,
     });
