@@ -1,7 +1,7 @@
 import { UpdateUserPasswordDto } from './../users/dto/update-user-password.dto';
 import { JwtAuthGuard } from './guards/jwt.guard';
 import { LocalAuthGuard } from './guards/local.guard';
-import { UnauthorizedExceptionFilter } from './../exeption-filters/unauthorize-exeption.filter';
+// import { UnauthorizedExceptionFilter } from './../exeption-filters/unauthorize-exeption.filter';
 import {
   Body,
   Controller,
@@ -11,6 +11,7 @@ import {
   Post,
   Req,
   Res,
+  UnauthorizedException,
   UseFilters,
   UseGuards,
 } from '@nestjs/common';
@@ -33,7 +34,7 @@ export class AuthController {
   ) {}
 
   @UseGuards(LocalAuthGuard)
-  @UseFilters(UnauthorizedExceptionFilter)
+  // @UseFilters(UnauthorizedExceptionFilter)
   @Post('/login/')
   async getLogin(@Req() req: Request, @Res() res: Response) {
     const { accessToken } = await this.authService.login(
@@ -43,7 +44,7 @@ export class AuthController {
       httpOnly: true,
       secure: isProd,
     });
-    return res.redirect('/profile/');
+    return res.status(HttpStatus.ACCEPTED).json({ token: accessToken });
   }
 
   @Post('/recover-password/')
@@ -89,7 +90,7 @@ export class AuthController {
     @Param('bytes') bytes: string,
   ) {
     const can = await this.authService.compareRecoveryAddress({ id, bytes });
-    if (!can) return res.redirect('/auth/login/');
+    if (!can) throw new UnauthorizedException('Url is broken');
     const user = await this.usersService.update(id, {
       password: updateUserPassword.password,
     });
@@ -97,7 +98,7 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @UseFilters(UnauthorizedExceptionFilter)
+  // @UseFilters(UnauthorizedExceptionFilter)
   @Get('/logout/')
   async getLogout(@Res() res: Response) {
     this.authService.logout(res);
