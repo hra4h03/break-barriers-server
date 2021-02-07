@@ -10,6 +10,8 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
+import * as randomColor from 'randomcolor';
 import { Model } from 'mongoose';
 import { hash } from 'bcrypt';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -23,6 +25,16 @@ export class UsersService {
     @Inject(forwardRef(() => RoomsService))
     private readonly roomsService: RoomsService,
   ) {}
+
+  private generateUserAvatar({name, id}: {name: string, id: string}) {
+    const color = randomColor({ hue: "blue", luminosity: "dark", seed: id }).slice(1)
+    return `https://ui-avatars.com/api/?name=${name}&background=${color}&color=fff&bold=true&uppercase=true`
+  }
+
+  removePasswordField(doc: Document) {
+    return doc.toObject({ transform(doc, ret) { delete ret.password; return ret; } });
+  }
+
   async isExist(query = {}) {
     return !!(await this.userSchema.findOne(query));
   }
@@ -63,12 +75,14 @@ export class UsersService {
       throw error;
     }
 
+
     const newUser = new this.userSchema({
       username: user.username,
       email: user.email,
       password: user.password,
     });
-    return await newUser.save();
+    newUser.avatar = this.generateUserAvatar({ name: user.username, id: newUser._id.toString() })
+    return this.removePasswordField(await newUser.save())
   }
 
   findAll() {
@@ -92,10 +106,14 @@ export class UsersService {
     }
 
     try {
-      const updatedUser = await this.userSchema.findByIdAndUpdate(id, user, {
+      const updatingUser = {
+        ...user,
+        updatedAt: new Date(),
+      }
+      const updatedUser = await this.userSchema.findByIdAndUpdate(id, updatingUser, {
         new: true,
       });
-      return updatedUser;
+      return this.removePasswordField(updatedUser);
     } catch (error) {
       throw new Error(error.message);
     }

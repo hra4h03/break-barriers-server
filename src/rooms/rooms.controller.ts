@@ -1,4 +1,3 @@
-import { JwtPayload } from './../auth/interfaces/payload.jwt';
 import { JwtAuthGuard } from './../auth/guards/jwt.guard';
 import {
   Controller,
@@ -19,6 +18,7 @@ import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
+import { User } from 'src/common/decorators/user.decorator';
 
 @ApiTags('rooms')
 @Controller('rooms')
@@ -28,10 +28,9 @@ export class RoomsController {
 
   @UseGuards(JwtAuthGuard)
   @Post('/create/')
-  async create(@Body() createRoomDto: CreateRoomDto, @Req() req: Request) {
+  async create(@User('_id') id: string, @Body() createRoomDto: CreateRoomDto) {
     try {
-      const user = req.user as JwtPayload;
-      return await this.roomsService.create(createRoomDto, user._id);
+      return await this.roomsService.create(createRoomDto, id);
     } catch (error) {
       this.logger.error(error.message);
       return error;
@@ -41,15 +40,14 @@ export class RoomsController {
   @UseGuards(JwtAuthGuard)
   @Get('/join/:id/')
   async joinToRoom(
-    @Req() req: Request,
     @Res() res: Response,
     @Param('id') id: string,
+    @User('_id') userId: string
   ) {
     try {
-      const user = req.user as JwtPayload;
       const info = await this.roomsService.requestJoinRoom({
         roomId: id,
-        userId: user._id,
+        userId
       });
       return res.status(HttpStatus.OK).json({ info });
     } catch (error) {

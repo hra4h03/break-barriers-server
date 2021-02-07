@@ -66,7 +66,7 @@ export class RoomsService {
           { $sort: { members_length: -1 } },
         ])
         // TODO: user specific recomendation
-        .limit(5)
+        // .limit(5)
     );
   }
 
