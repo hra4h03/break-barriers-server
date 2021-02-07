@@ -16,7 +16,7 @@ AdminBro.registerAdapter(AdminBroMongoose);
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.enableCors({
-    origin: ['http://localhost:5000'],
+    origin: ['http://localhost:5000', 'https://break-barriers.vercel.app'],
   });
 
   app.useStaticAssets(join(__dirname, '..', 'public'));

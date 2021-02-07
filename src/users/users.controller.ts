@@ -56,6 +56,13 @@ export class UsersController {
     }
   }
 
+  @Get('/me/')
+  @UseGuards(JwtAuthGuard)
+  getMe(@Req() req: Request) {
+    const user = req.user as JwtPayload;
+    return this.usersService.findById(user._id);
+  }
+
   @Get()
   findAll() {
     return this.usersService.findAll();
