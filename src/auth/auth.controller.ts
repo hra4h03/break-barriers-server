@@ -22,7 +22,6 @@ import { MailService } from 'src/mail/mail.service';
 import { UpdateUserWithEmail } from 'src/users/dto/update-with-email.dto';
 import { UsersService } from 'src/users/users.service';
 import { ApiTags } from '@nestjs/swagger';
-import { isProd } from 'src/common/constants';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -40,10 +39,6 @@ export class AuthController {
     const { accessToken } = await this.authService.login(
       req.user as UserDocument,
     );
-    res.cookie('jwt_token', accessToken, {
-      httpOnly: true,
-      secure: isProd,
-    });
     return res.status(HttpStatus.ACCEPTED).json({ token: accessToken });
   }
 
