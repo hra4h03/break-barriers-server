@@ -15,7 +15,9 @@ AdminBro.registerAdapter(AdminBroMongoose);
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
-  app.enableCors({ credentials: true });
+  app.enableCors({
+    origin: ['http://localhost:5000'],
+  });
 
   app.useStaticAssets(join(__dirname, '..', 'public'));
   app.setViewEngine('ejs');
@@ -38,7 +40,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('swagger', app, document);
 
-  const PORT = process.env.PORT || 5000;
+  const PORT = process.env.PORT || 8000;
   await app.listen(PORT, () =>
     Logger.log(`App started at http://localhost:${PORT}`, 'Main'),
   );
