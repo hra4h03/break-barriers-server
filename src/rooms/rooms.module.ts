@@ -4,8 +4,8 @@ import { forwardRef, Module } from '@nestjs/common';
 import { RoomsService } from './rooms.service';
 import { RoomsController } from './rooms.controller';
 import { MongooseModule } from '@nestjs/mongoose';
-import { RoomsGateway } from './gateways/rooms.gateway';
 import { AuthModule } from 'src/auth/auth.module';
+import { RoomsGateway } from './rooms.gateway';
 
 @Module({
   imports: [
