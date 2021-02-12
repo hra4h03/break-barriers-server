@@ -1,3 +1,4 @@
+import { MessagesService } from './../messages/messages.service';
 import { UsersService } from 'src/users/users.service';
 import { Room, RoomDocument } from './entities/room.entity';
 import {
@@ -24,6 +25,7 @@ export class RoomsService {
     @InjectModel(Room.name) private readonly roomSchema: Model<RoomDocument>,
     @Inject(forwardRef(() => UsersService))
     private readonly usersService: UsersService,
+    private readonly messageService: MessagesService,
   ) {}
 
   async isExist(name: string) {
@@ -53,25 +55,26 @@ export class RoomsService {
   }
 
   findAll() {
-    return (
-      this.roomSchema
-        .aggregate([
-          {
-            $project: {
-              title: 1,
-              logo: 1,
-              members_length: { $size: '$members' },
-            },
-          },
-          { $sort: { members_length: -1 } },
-        ])
-        // TODO: user specific recomendation
-        // .limit(5)
-    );
+    return this.roomSchema.aggregate([
+      {
+        $project: {
+          title: 1,
+          logo: 1,
+          members_length: { $size: '$members' },
+        },
+      },
+      { $sort: { members_length: -1 } },
+    ]);
+    // TODO: user specific recomendation
+    // .limit(5)
   }
 
   findById(id: string) {
     return this.roomSchema.findById(id);
+  }
+
+  getMessagesById({ id, page }: { id: string; page: number }) {
+    return this.messageService.getMessageChunk({ roomId: id, page });
   }
 
   async update(id: string, updateRoomDto: UpdateRoomDto) {

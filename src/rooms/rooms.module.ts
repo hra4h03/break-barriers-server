@@ -1,3 +1,4 @@
+import { MessagesModule } from './../messages/messages.module';
 import { UsersModule } from './../users/users.module';
 import { Room, RoomSchema } from './entities/room.entity';
 import { forwardRef, Module } from '@nestjs/common';
@@ -12,6 +13,7 @@ import { RoomsGateway } from './rooms.gateway';
     MongooseModule.forFeature([{ name: Room.name, schema: RoomSchema }]),
     forwardRef(() => UsersModule),
     AuthModule,
+    MessagesModule,
   ],
   controllers: [RoomsController],
   providers: [RoomsService, RoomsGateway],

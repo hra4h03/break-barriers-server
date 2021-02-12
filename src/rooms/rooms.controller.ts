@@ -12,6 +12,8 @@ import {
   Req,
   Res,
   HttpStatus,
+  Query,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { RoomsService } from './rooms.service';
 import { CreateRoomDto } from './dto/create-room.dto';
@@ -42,12 +44,12 @@ export class RoomsController {
   async joinToRoom(
     @Res() res: Response,
     @Param('id') id: string,
-    @User('_id') userId: string
+    @User('_id') userId: string,
   ) {
     try {
       const info = await this.roomsService.requestJoinRoom({
         roomId: id,
-        userId
+        userId,
       });
       return res.status(HttpStatus.OK).json({ info });
     } catch (error) {
@@ -63,6 +65,14 @@ export class RoomsController {
   @Get(':id')
   findById(@Param('id') id: string) {
     return this.roomsService.findById(id);
+  }
+
+  @Get('/:id/messages')
+  getMessagesById(
+    @Param('id') id: string,
+    @Query('page', ParseIntPipe) page: number,
+  ) {
+    return this.roomsService.getMessagesById({ id, page });
   }
 
   @Put(':id')

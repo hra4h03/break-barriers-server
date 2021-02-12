@@ -33,6 +33,3 @@ export class Room {
 }
 
 export const RoomSchema = SchemaFactory.createForClass<RoomDocument>(Room);
-RoomSchema.virtual('members_length').get(function () {
-  return this.members.length;
-});
