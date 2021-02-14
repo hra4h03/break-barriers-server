@@ -10,7 +10,6 @@ import { MongooseSchemasModule } from './mongoose-schema/mongoose-schema.module'
 import { AuthModule } from './auth/auth.module';
 import { AdminPanelModule } from './admin/admin.module';
 import { MailModule } from './mail/mail.module';
-import { MessagesModule } from './messages/messages.module';
 
 @Module({
   imports: [
@@ -28,9 +27,8 @@ import { MessagesModule } from './messages/messages.module';
     MongooseSchemasModule,
     AuthModule,
     MailModule,
-    MessagesModule,
   ],
   controllers: [AppController],
-  providers: [AppService, ],
+  providers: [AppService],
 })
 export class AppModule {}
