@@ -22,6 +22,7 @@ import { MailService } from 'src/mail/mail.service';
 import { UpdateUserWithEmail } from 'src/users/dto/update-with-email.dto';
 import { UsersService } from 'src/users/users.service';
 import { ApiTags } from '@nestjs/swagger';
+import { User } from 'src/common/decorators/user.decorator';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -62,19 +63,9 @@ export class AuthController {
 
   @Get('/user')
   @UseGuards(JwtAuthGuard)
-  async getUser(@Req() req: Request) {
-    return { user: req.user };
-  }
-
-  @Get('/recover-password/:id/:bytes/')
-  async recoverPassword(
-    @Res() res: Response,
-    @Param('id') id: string,
-    @Param('bytes') bytes: string,
-  ) {
-    const can = await this.authService.compareRecoveryAddress({ id, bytes });
-    if (!can) return res.redirect('/auth/login/');
-    return res.redirect(`/auth/login/recover-password/${id}/${bytes}`);
+  async getUser(@User('_id') id: string) {
+    const user = await this.usersService.findById(id);
+    return { user };
   }
 
   @Post('/recover-password/:id/:bytes/')
@@ -97,6 +88,9 @@ export class AuthController {
   @Get('/logout/')
   async getLogout(@Res() res: Response) {
     this.authService.logout(res);
-    return res.redirect('/');
+    return res.status(HttpStatus.OK).json({
+      message: 'Logged out',
+      status: HttpStatus.OK,
+    });
   }
 }

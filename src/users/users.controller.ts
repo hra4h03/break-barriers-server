@@ -66,7 +66,9 @@ export class UsersController {
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
-    return this.usersService.removePasswordField(await this.usersService.findOne(id));
+    return this.usersService.removePasswordField(
+      await this.usersService.findOne(id),
+    );
   }
 
   @Put(':id')

@@ -54,8 +54,8 @@ export class AuthService {
         type: 'url-safe',
       });
 
-      const hostname = `${req.protocol}://${req.headers.host}`;
-      const url = `${hostname}/api/auth/recover-password/${user.id}/${bytes}/`;
+      const hostname = 'https://break-barriers.vercel.app';
+      const url = `${hostname}/auth/recover-password/${user.id}/${bytes}/`;
 
       const ttl = TTL.FIFTEEN;
       await this.cacheManager.set(user.id, bytes, { ttl });
